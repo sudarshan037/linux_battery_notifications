@@ -11,8 +11,9 @@ this script will generate notifications depending upon your battery level and ch
 1. Open Terminal
 2. python3 -m venv venv
 3. source venv/bin/activate
-4. python setup.py
-5. deactivate
+4. pip install -r requirements.txt
+5. python setup.py
+6. deactivate
 
 #Uninstallation Steps
 1. source venv/bin/activate
