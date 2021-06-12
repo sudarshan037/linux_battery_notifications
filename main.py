@@ -19,12 +19,12 @@ def notification_manager(computer):
     message = computer.__str__()
     icons = str(pathlib.Path(__file__).parent.absolute()) + "/data/icons/"
     audios = str(pathlib.Path(__file__).parent.absolute()) + "/data/sounds/"
-    if computer.charging_status == "Charging":
-        if computer.battery_percentage == 100:
-            icon = icons + "battery_100_1.png"
-            audio = audios + "battery_full.wav"
-            send_notification(title, message, icon, audio)
-        elif computer.battery_percentage > 95:
+    if computer.battery_percentage == 100:
+        icon = icons + "battery_100_1.png"
+        audio = audios + "battery_full.wav"
+        send_notification(title, message, icon, audio)
+    elif computer.charging_status == "Charging":
+        if computer.battery_percentage > 95:
             icon = icons + "battery_gt_95_1.png"
             audio = audios + "Popcorn.wav"
             send_notification(title, message, icon, audio)

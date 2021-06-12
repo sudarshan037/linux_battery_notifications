@@ -12,6 +12,7 @@ class Computer:
     remaining_time = None
     timer = None
     session_status = None
+    statement = None
 
     def __init__(self):
         self.session_mapping = {
@@ -21,14 +22,23 @@ class Computer:
 
     def set_battery_percentage(self):
         battery_data = os.popen('acpi -b').read()
+        # battery_data = "Battery 0: Charging, 91%, rate information unavailable"
         print("battery_data:", battery_data)
         self.battery_percentage = int(re.search(r'\d{1,3}(?=%)', battery_data).group())
-        self.charging_status = re.search(r'Charging|Discharging|Full', battery_data).group()
-        self.remaining_time = re.search(r'(?<=, )\d*:\d*:\d*', battery_data).group()
+        self.charging_status = re.search(r'Full|Charging|Discharging', battery_data).group()
+        self.remaining_time = re.search(r'(?<=, )\d*:\d*:\d*|rate|Full', battery_data).group()
 
-        hh_mm_ss = list(map(int, self.remaining_time.split(":")))
-        remaining_timedelta = timedelta(hours=hh_mm_ss[0], minutes=hh_mm_ss[1], seconds=hh_mm_ss[2])
-        self.timer = datetime.now() + remaining_timedelta
+        if self.remaining_time == "rate" or self.charging_status == "Full":
+            self.statement = self.charging_status
+        else:
+            hh_mm_ss = list(map(int, self.remaining_time.split(":")))
+            remaining_timedelta = timedelta(hours=hh_mm_ss[0], minutes=hh_mm_ss[1], seconds=hh_mm_ss[2])
+            self.timer = (datetime.now() + remaining_timedelta).strftime("%I:%M %p")
+            self.statement = "{} in {} at {}".format(
+                self.charging_status,
+                self.remaining_time,
+                self.timer
+            )
 
     def set_session_status(self):
         command = [
@@ -41,8 +51,4 @@ class Computer:
         self.session_status = self.session_mapping[re.search(r'owned|owner', session_data).group()]
 
     def __str__(self):
-        statement = "{} in {} at {}."
-        return statement.format(self.charging_status,
-                                self.remaining_time,
-                                self.timer.strftime("%I:%M %p")
-                                )
+        return self.statement
